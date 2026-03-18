@@ -1,0 +1,39 @@
+name: Validate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Run yamllint
+        run: yamllint .
+
+      - name: Install kubeconform
+        run: |
+          wget https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform-linux-amd64.tar.gz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate base manifests
+        run: |
+          kubectl kustomize base/ | kubeconform -ignore-missing-schemas
+
+      - name: Validate production overlay
+        run: |
+          kubectl kustomize overlays/production/ | kubeconform -ignore-missing-schemas
+
+      - name: Validate staging overlay
+        run: |
+          kubectl kustomize overlays/staging/ | kubeconform -ignore-missing-schemas
