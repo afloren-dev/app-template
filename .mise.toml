@@ -1,0 +1,10 @@
+[tools]
+python = "3.12"
+kubectl = "latest"
+kubeconform = "latest"
+
+[tools."pipx:pre-commit"]
+version = "latest"
+
+[tools."pipx:yamllint"]
+version = "1.35.1"
